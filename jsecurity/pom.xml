@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <!-- pick up Apache distributionManagement for releasing (snapshots, releases, etc): -->
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>5</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.apache.ki</groupId>
+    <artifactId>ki-root</artifactId>
+    <packaging>pom</packaging>
+
+    <version>1.0-incubating-SNAPSHOT</version>
+    <name>Apache Ki</name>
+
+    <url>http://incubator.apache.org/ki/</url>
+    <description>
+        Apache Ki is a powerful and flexible open-source Java security framework that cleanly handles
+        authentication, authorization, enterprise session management, single sign-on and cryptography services.
+    </description>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>Jira</system>
+        <url>http://issues.apache.org/jira/browse/KI</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Hudson</system>
+        <url>http://hudson.zones.apache.org/hudson/view/Ki/</url>
+    </ciManagement>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/jsecurity/import/trunk</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/jsecurity/import/trunk
+        </developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/jsecurity/import/trunk</url>
+    </scm>
+
+    <properties>
+        <jdk.version>1.5</jdk.version>
+        <slf4j.version>1.5.6</slf4j.version>
+        <hsqldbVersion>1.8.0.7</hsqldbVersion>
+        <jettyVersion>6.1.14</jettyVersion>
+        <retroweaverVersion>2.0.5</retroweaverVersion>
+        <springframeworkVersion>2.5.6</springframeworkVersion>
+    </properties>
+
+    <modules>
+        <module>core</module>
+        <module>web</module>
+        <module>support</module>
+        <module>samples</module>
+        <module>all</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <inherited>true</inherited>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-api-docs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>2.2</version>
+                <inherited>true</inherited>
+            </plugin>
+            <plugin>
+                <groupId>com.agilejava.docbkx</groupId>
+                <artifactId>docbkx-maven-plugin</artifactId>
+                <!-- <version>2.0.7</version> -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-html</goal>
+                            <goal>generate-pdf</goal>
+                        </goals>
+                        <phase>pre-site</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.docbook</groupId>
+                        <artifactId>docbook-xml</artifactId>
+                        <version>4.4</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <includes>index.xml</includes>
+                    <xincludeSupported>true</xincludeSupported>
+                    <!-- <foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+                    <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+                    <htmlStylesheet>css/html.css</htmlStylesheet> -->
+                    <chunkedOutput>true</chunkedOutput>
+                    <entities>
+                        <entity>
+                            <name>version</name>
+                            <value>${pom.version}</value>
+                        </entity>
+                    </entities>
+                    <postProcess>
+                        <copy todir="target/site/reference">
+                            <fileset dir="target/docbkx">
+                                <include name="**/*.html"/>
+                                <include name="**/*.pdf"/>
+                            </fileset>
+                        </copy>
+                        <copy todir="target/site/reference/html">
+                            <fileset dir="src/docbkx/resources">
+                                <include name="**/*.css"/>
+                                <include name="**/*.png"/>
+                                <include name="**/*.gif"/>
+                                <include name="**/*.jpg"/>
+                                <include name="**/*.tif"/>
+                            </fileset>
+                        </copy>
+                    </postProcess>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Intra project dependencies -->
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-ehcache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-quartz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ki</groupId>
+                <artifactId>ki-all</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 3rd party dependencies -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.7.0</version>
+            </dependency>
+            <dependency>
+                <groupId>hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldbVersion}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>2.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>1.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.15</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.jms</groupId>
+                        <artifactId>jms</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jdmk</groupId>
+                        <artifactId>jmxtools</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jmx</groupId>
+                        <artifactId>jmxri</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>1.4.1</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.retroweaver</groupId>
+                <artifactId>retroweaver</artifactId>
+                <version>${retroweaverVersion}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.retroweaver</groupId>
+                <artifactId>retroweaver-rt</artifactId>
+                <version>${retroweaverVersion}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>backport-util-concurrent</groupId>
+                <artifactId>backport-util-concurrent</artifactId>
+                <version>3.1</version>
+                <!-- Only needed for JDK 1.4 and below: -->
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring</artifactId>
+                <version>${springframeworkVersion}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${springframeworkVersion}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>quartz</groupId>
+                <artifactId>quartz</artifactId>
+                <version>1.5.2</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>taglibs</groupId>
+                <artifactId>standard</artifactId>
+                <version>1.1.2</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <source>${jdk.version}</source>
+                    <encoding>UTF-8</encoding>
+                    <linksource>true</linksource>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                        <link>http://java.sun.com/javaee/5/docs/api/</link>
+                        <link>http://www.slf4j.org/api/</link>
+                        <link>http://static.springframework.org/spring/docs/2.5.x/api/</link>
+                        <link>http://junit.org/junit/javadoc/4.4/</link>
+                        <link>http://easymock.org/api/easymock/2.4/</link>
+                    </links>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+</project>
